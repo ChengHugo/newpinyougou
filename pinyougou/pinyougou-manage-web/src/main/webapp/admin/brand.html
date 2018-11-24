@@ -48,7 +48,8 @@
             };
 
             $scope.reloadList = function () {
-                $scope.findPage($scope.paginationConf.currentPage, $scope.paginationConf.itemsPerPage);
+                //$scope.findPage($scope.paginationConf.currentPage, $scope.paginationConf.itemsPerPage);
+                $scope.search($scope.paginationConf.currentPage, $scope.paginationConf.itemsPerPage);
 
             };
 
@@ -140,6 +141,20 @@
                     });
                 }
             };
+
+            //定义查询条件对象
+            $scope.searchEntity = {};
+            //条件分页查询
+            $scope.search = function (page, rows) {
+
+                $http.post("../brand/search.do?page=" + page + "&rows=" + rows, $scope.searchEntity).success(function (response) {
+                    //更新分页导航条的总记录数
+                    $scope.paginationConf.totalItems = response.total;
+
+                    $scope.list = response.rows;
+
+                });
+            };
         });
     </script>
 </head>
@@ -165,8 +180,11 @@
                                 </div>
                             </div>
                             <div class="box-tools pull-right">
+                                {{searchEntity}}
                                 <div class="has-feedback">
-							        品牌名称：<input> 品牌首字母：<input>  <button class="btn btn-default">查询</button>                                 
+							        品牌名称：<input ng-model="searchEntity.name">
+                                    品牌首字母：<input ng-model="searchEntity.firstChar">
+                                    <button class="btn btn-default" ng-click="reloadList()">查询</button>
                                 </div>
                             </div>
                             <!--工具栏/-->
