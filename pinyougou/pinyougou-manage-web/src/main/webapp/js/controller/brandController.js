@@ -1,5 +1,8 @@
 //定义品牌的处理器
-app.controller("brandController", function ($scope, $http, brandService) {
+app.controller("brandController", function ($scope, $http, $controller, brandService) {
+
+    //继承处理器；参数1：要继承的处理器名称，参数2：传递本处理器的信息到父处理器
+    $controller("baseController", {$scope:$scope});
 
     //查询品牌列表
     $scope.findAll = function () {
@@ -10,27 +13,6 @@ app.controller("brandController", function ($scope, $http, brandService) {
 
     };
 
-    //初始化分页导航条的参数
-    $scope.paginationConf = {
-        //页号
-        currentPage: 1,
-        //页大小
-        itemsPerPage: 10,
-        //总记录
-        totalItems: 0,
-        //页大小选择
-        perPageOptions: [10, 20, 30, 40, 50],
-        //如果页号发生改变的事件
-        onChange:function(){
-            $scope.reloadList();
-        }
-    };
-
-    $scope.reloadList = function () {
-        //$scope.findPage($scope.paginationConf.currentPage, $scope.paginationConf.itemsPerPage);
-        $scope.search($scope.paginationConf.currentPage, $scope.paginationConf.itemsPerPage);
-
-    };
 
     //根据分页信息查询数据
     $scope.findPage = function (page, rows) {
@@ -75,25 +57,6 @@ app.controller("brandController", function ($scope, $http, brandService) {
             $scope.entity = response;
 
         });
-
-    };
-
-    //已选择了的id的数组
-    $scope.selectedIds = [];
-
-    //选择或者反选
-    $scope.updateSelection = function ($event, id) {
-        //$event.target最初触发事件的DOM元素。
-        if($event.target.checked){
-            //如果是选中复选框，应该将当前点击了的品牌的id 记录到 选择了的id数组中；
-            $scope.selectedIds.push(id);
-        } else {
-            //如果是反选复选框，应该将当前点击的品牌的id从 选择了的id数组中 删除
-            var index = $scope.selectedIds.indexOf(id);
-
-            //参数1：要删除的元素的索引号，参数2：删除的个数
-            $scope.selectedIds.splice(index, 1);
-        }
 
     };
 
