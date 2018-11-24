@@ -69,7 +69,13 @@
 
             //保存数据
             $scope.save = function () {
-                $http.post("../brand/add.do", $scope.entity).success(function (response) {
+                var method = "add";
+
+                if ($scope.entity.id != null) {
+                    method = "update";
+                }
+
+                $http.post("../brand/"+method+".do", $scope.entity).success(function (response) {
                     if(response.success){
                         //刷新列表
                         $scope.reloadList();
