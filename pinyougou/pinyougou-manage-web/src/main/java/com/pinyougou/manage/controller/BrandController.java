@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.pinyougou.pojo.TbBrand;
 import com.pinyougou.sellergoods.service.BrandService;
 import com.pinyougou.vo.PageResult;
+import com.pinyougou.vo.Result;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +18,23 @@ public class BrandController {
     //引入远程的服务对象
     @Reference
     private BrandService brandService;
+
+    /**
+     * 保存品牌数据到数据库中
+     * @param brand 品牌
+     * @return 操作结果
+     */
+    @PostMapping("/add")
+    public Result add(@RequestBody TbBrand brand){
+        try {
+            brandService.add(brand);
+
+            return Result.ok("新增品牌成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Result.fail("新增品牌失败");
+    }
 
     /**
      * 根据页号和页大小查询品牌列表
