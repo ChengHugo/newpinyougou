@@ -20,6 +20,22 @@ public class BrandController {
     private BrandService brandService;
 
     /**
+     * 根据品牌id数组批量删除品牌数据
+     * @param ids 品牌id数组批
+     * @return 操作结果
+     */
+    @GetMapping("/delete")
+    public Result delete(Long[] ids){
+        try {
+            brandService.deleteByIds(ids);
+            return Result.ok("删除品牌成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Result.fail("删除品牌失败");
+    }
+
+    /**
      * 更加主键更新品牌数据到数据库中
      * @param brand 品牌
      * @return 操作结果
