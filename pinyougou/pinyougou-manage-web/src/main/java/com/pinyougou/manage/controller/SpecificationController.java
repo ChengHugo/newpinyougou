@@ -44,13 +44,23 @@ public class SpecificationController {
         return Result.fail("增加失败");
     }
 
+    /**
+     * 根据规格id查询规格及其选项列表
+     * @param id 规格id
+     * @return 规格及其选项列表
+     */
     @GetMapping("/findOne")
-    public TbSpecification findOne(Long id) {
+    public Specification findOne(Long id) {
         return specificationService.findOne(id);
     }
 
+    /**
+     * 更新规格及其规格选项列表
+     * @param specification 规格及其规格选项列表
+     * @return 操作结果
+     */
     @PostMapping("/update")
-    public Result update(@RequestBody TbSpecification specification) {
+    public Result update(@RequestBody Specification specification) {
         try {
             specificationService.update(specification);
             return Result.ok("修改成功");
