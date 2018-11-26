@@ -5,6 +5,7 @@ import com.pinyougou.pojo.TbSpecification;
 import com.pinyougou.sellergoods.service.SpecificationService;
 import com.pinyougou.vo.PageResult;
 import com.pinyougou.vo.Result;
+import com.pinyougou.vo.Specification;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,8 +28,13 @@ public class SpecificationController {
         return specificationService.findPage(page, rows);
     }
 
+    /**
+     * 新增规格及其规格选项列表
+     * @param specification 规格及其规格选项列表
+     * @return 操作结果
+     */
     @PostMapping("/add")
-    public Result add(@RequestBody TbSpecification specification) {
+    public Result add(@RequestBody Specification specification) {
         try {
             specificationService.add(specification);
             return Result.ok("增加成功");
