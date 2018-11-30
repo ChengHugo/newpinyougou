@@ -187,6 +187,7 @@ app.controller("goodsController", function ($scope, $controller, $location, good
         //查看当前的规格是否已经选择过
         var specObj = $scope.findObjectByKeyAndValue($scope.entity.goodsDesc.specificationItems, "attributeName", specName);
         if(specObj != null) {
+            //规格已经添加过
             if($event.target.checked){
                 specObj.attributeValue.push(optionName);
             } else {
@@ -200,6 +201,7 @@ app.controller("goodsController", function ($scope, $controller, $location, good
                 }
             }
         } else {
+            //规格没有添加过
             $scope.entity.goodsDesc.specificationItems.push({"attributeName":specName,"attributeValue":[optionName]});
         }
     };
@@ -223,6 +225,7 @@ app.controller("goodsController", function ($scope, $controller, $location, good
             var oldItem = itemList[i];
             for (var j = 0; j < specOptions.length; j++) {
                 var option = specOptions[j];
+                //深度克隆
                 var newItem = JSON.parse(JSON.stringify(oldItem));
                 newItem.spec[specName] = option;
 
