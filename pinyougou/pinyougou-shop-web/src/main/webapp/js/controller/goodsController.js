@@ -161,6 +161,7 @@ app.controller("goodsController", function ($scope, $controller, $location, good
     $scope.$watch("entity.goods.typeTemplateId", function (newValue, oldValue) {
         if (newValue != undefined) {
             typeTemplateService.findOne(newValue).success(function (response) {
+                //品牌、规格、扩展属性
                 $scope.typeTemplate = response;
                 //将字符串转换为json对象
                 $scope.typeTemplate.brandIds = JSON.parse($scope.typeTemplate.brandIds);
