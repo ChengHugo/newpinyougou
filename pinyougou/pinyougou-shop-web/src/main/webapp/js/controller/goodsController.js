@@ -150,6 +150,7 @@ app.controller("goodsController", function ($scope, $controller, $location, good
     //当选择三级分类后，查询对应的分类模板id
     $scope.$watch("entity.goods.category3Id", function (newValue, oldValue) {
         if (newValue != undefined) {
+            //根据商品分类id查询商品分类（模版id）
             itemCatService.findOne(newValue).success(function (response) {
                 $scope.entity.goods.typeTemplateId = response.typeId;
             });
