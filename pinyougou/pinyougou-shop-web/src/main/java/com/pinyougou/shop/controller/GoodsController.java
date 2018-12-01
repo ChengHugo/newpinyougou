@@ -50,9 +50,14 @@ public class GoodsController {
         return Result.fail("增加失败");
     }
 
+    /**
+     * 根据spu id查询商品基本、描述、sku列表
+     * @param id spu id
+     * @return 商品基本、描述、sku列表
+     */
     @GetMapping("/findOne")
-    public TbGoods findOne(Long id) {
-        return goodsService.findOne(id);
+    public Goods findOne(Long id) {
+        return goodsService.findGoodsById(id);
     }
 
     @PostMapping("/update")
