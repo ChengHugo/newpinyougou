@@ -54,10 +54,15 @@ public class GoodsController {
         return Result.fail("修改失败");
     }
 
+    /**
+     * 更新商品的删除状态为已删除
+     * @param ids 要删除的商品spu id数组
+     * @return 操作结果
+     */
     @GetMapping("/delete")
     public Result delete(Long[] ids) {
         try {
-            goodsService.deleteByIds(ids);
+            goodsService.deleteGoodsByIds(ids);
             return Result.ok("删除成功");
         } catch (Exception e) {
             e.printStackTrace();
