@@ -60,10 +60,25 @@ public class GoodsController {
         return goodsService.findGoodsById(id);
     }
 
+    /**
+     * 根据商品spu id保存商品基本、描述、sku列表；
+     * @param goods 商品基本、描述、sku列表
+     * @return 操作结果
+     */
     @PostMapping("/update")
-    public Result update(@RequestBody TbGoods goods) {
+    public Result update(@RequestBody Goods goods) {
         try {
-            goodsService.update(goods);
+            //当前登录商家
+            String sellerId = SecurityContextHolder.getContext().getAuthentication().getName();
+
+            //获取商品原来的商家
+            TbGoods oldGoods = goodsService.findOne(goods.getGoods().getId());
+
+            if(sellerId.equals(goods.getGoods().getSellerId()) && sellerId.equals(oldGoods.getSellerId())) {
+                goodsService.updateGoods(goods);
+            } else {
+                return Result.fail("非法操作");
+            }
             return Result.ok("修改成功");
         } catch (Exception e) {
             e.printStackTrace();
