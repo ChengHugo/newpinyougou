@@ -13,6 +13,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.StringUtils;
 import tk.mybatis.mapper.entity.Example;
 
+import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 
 @Service(interfaceClass = ContentService.class)
@@ -26,6 +28,53 @@ public class ContentServiceImpl extends BaseServiceImpl<TbContent> implements Co
 
     @Autowired
     private RedisTemplate redisTemplate;
+
+    @Override
+    public void add(TbContent tbContent) {
+        super.add(tbContent);
+        //同步更新内容分类对应的缓存数据
+        updateContentListInRedisByCategoryId(tbContent.getCategoryId());
+    }
+
+    /**
+     * 同步更新内容分类对应的缓存数据
+     * @param categoryId 内容分类id
+     */
+    private void updateContentListInRedisByCategoryId(Long categoryId) {
+        redisTemplate.boundHashOps(CONTENT).delete(categoryId);
+    }
+
+    @Override
+    public void update(TbContent tbContent) {
+        //1、查询旧内容
+        TbContent oldContent = findOne(tbContent.getId());
+
+        super.update(tbContent);
+
+        //2、更新缓存数据
+        if (!tbContent.getCategoryId().equals(oldContent.getCategoryId())) {
+            //查询内容对应的原内容分类；如果内容分类与当前最新的内容分类不一致，则需要删除旧分类对应的缓存
+            updateContentListInRedisByCategoryId(oldContent.getCategoryId());
+        }
+
+        //将内容对应的新内容分类的缓存数据从redis中删除
+        updateContentListInRedisByCategoryId(tbContent.getCategoryId());
+    }
+
+    @Override
+    public void deleteByIds(Serializable[] ids) {
+        //先根据内容id数组查询所有内容；遍历每一个内容再根据内容分类到redis删除分类对应的缓存数据
+        Example example = new Example(TbContent.class);
+        example.createCriteria().andIn("id", Arrays.asList(ids));
+        List<TbContent> contentList = contentMapper.selectByExample(example);
+        if (contentList != null && contentList.size() > 0) {
+            for (TbContent content : contentList) {
+                updateContentListInRedisByCategoryId(content.getCategoryId());
+            }
+        }
+
+        super.deleteByIds(ids);
+    }
 
     @Override
     public PageResult search(Integer page, Integer rows, TbContent content) {
