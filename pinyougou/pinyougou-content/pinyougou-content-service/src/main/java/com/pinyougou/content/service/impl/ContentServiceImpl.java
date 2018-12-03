@@ -9,6 +9,7 @@ import com.pinyougou.content.service.ContentService;
 import com.pinyougou.service.impl.BaseServiceImpl;
 import com.pinyougou.vo.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.StringUtils;
 import tk.mybatis.mapper.entity.Example;
 
@@ -17,8 +18,14 @@ import java.util.List;
 @Service(interfaceClass = ContentService.class)
 public class ContentServiceImpl extends BaseServiceImpl<TbContent> implements ContentService {
 
+    //广告内容缓存在redis中的key的名称
+    private static final String CONTENT = "content";
+
     @Autowired
     private ContentMapper contentMapper;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Override
     public PageResult search(Integer page, Integer rows, TbContent content) {
@@ -39,6 +46,18 @@ public class ContentServiceImpl extends BaseServiceImpl<TbContent> implements Co
     @Override
     public List<TbContent> findContentListByCategoryId(Long categoryId) {
         List<TbContent> contentList = null;
+
+        try {
+            //1. 先从redis查询内容列表，如果找到则直接返回；
+            contentList = (List<TbContent>) redisTemplate.boundHashOps(CONTENT).get(categoryId);
+            if (contentList != null) {
+                return contentList;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
         /**
          * --查询内容分类id为1并且有效的广告并且按照排序字段降序排序
          * select * from tb_content where category_id=? and status=1 order by sort_order desc
@@ -57,6 +76,13 @@ public class ContentServiceImpl extends BaseServiceImpl<TbContent> implements Co
         example.orderBy("sortOrder").desc();
 
         contentList = contentMapper.selectByExample(example);
+
+        try {
+            //2. 如果在redis中不存在内容列表，则从mysql根据条件查询；返回数据之前将数据存入到redis
+            redisTemplate.boundHashOps(CONTENT).put(categoryId, contentList);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return contentList;
     }

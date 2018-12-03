@@ -13,7 +13,8 @@ import java.util.List;
 @RestController
 public class ContentController {
 
-    @Reference
+    //从远程服务中获取返回结果的等待时间
+    @Reference(timeout = 10000)
     private ContentService contentService;
 
     /**
