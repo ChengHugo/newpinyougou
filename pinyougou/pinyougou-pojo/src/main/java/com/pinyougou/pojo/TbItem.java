@@ -20,6 +20,8 @@ public class TbItem implements Serializable {
     @Field
     private Long id;
 
+    //需要映射到solr中的域的话；可以使用该注解
+    //如果名字域schema.xml中一致则不需要特别的指定名称；如果不一致则需要指定
     @Field("item_title")
     private String title;
 
