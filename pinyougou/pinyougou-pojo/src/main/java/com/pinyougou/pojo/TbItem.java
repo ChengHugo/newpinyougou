@@ -74,6 +74,8 @@ public class TbItem implements Serializable {
     @Field("item_seller")
     private String seller;
 
+    //映射动态域；需要有一个map，map的key将与动态域名称的*进行替换，map的value将作为该域的值
+    //<内存,16G>  ---> item_spec_内存:16G
     @Dynamic
     @Field("item_spec_*")
     private Map<String, String> specMap;
