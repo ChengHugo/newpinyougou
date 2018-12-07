@@ -86,6 +86,33 @@ public class ItemSearchServiceImpl implements ItemSearchService {
 
         }
 
+        //按照价格区间条件过滤
+        if(!StringUtils.isEmpty(searchMap.get("price"))){
+
+            //获取价格的上下限区间 500-1000， 3000-*
+            String[] prices = searchMap.get("price").toString().split("-");
+
+            //创建过滤查询对象
+            SimpleFilterQuery priceStartFilterQuery = new SimpleFilterQuery();
+            //创建条件对象：参数1：域名，is之后的是查询的值
+            Criteria startCriteria = new Criteria("item_price").greaterThanEqual(prices[0]);
+            priceStartFilterQuery.addCriteria(startCriteria);
+            //添加过滤条件
+            query.addFilterQuery(priceStartFilterQuery);
+
+            if (!"*".equals(prices[1])) {
+                //处理如：3000-* 时候的*
+                //创建过滤查询对象
+                SimpleFilterQuery priceEndFilterQuery = new SimpleFilterQuery();
+                //创建条件对象：参数1：域名，is之后的是查询的值
+                Criteria endCriteria = new Criteria("item_price").lessThanEqual(prices[1]);
+                priceEndFilterQuery.addCriteria(endCriteria);
+
+                //添加过滤条件
+                query.addFilterQuery(priceEndFilterQuery);
+            }
+        }
+
 
         //查询
         //ScoredPage<TbItem> scoredPage = solrTemplate.queryForPage(query, TbItem.class);

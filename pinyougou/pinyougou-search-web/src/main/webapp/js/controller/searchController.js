@@ -1,7 +1,7 @@
 app.controller("searchController", function ($scope, searchService) {
 
     //定义提交到后台的对象
-    $scope.searchMap = {"keywords":"","brand":"","category":"","spec":{}};
+    $scope.searchMap = {"keywords":"","brand":"","category":"","price":"","spec":{}};
 
     //搜索
     $scope.search = function () {
@@ -14,7 +14,7 @@ app.controller("searchController", function ($scope, searchService) {
 
     //添加过滤条件
     $scope.addSearchItem = function (key, value) {
-        if ("brand" == key || "category" == key) {
+        if ("brand" == key || "category" == key || "price" == key) {
             $scope.searchMap[key] = value;
         } else {
             //规格
@@ -28,7 +28,7 @@ app.controller("searchController", function ($scope, searchService) {
 
     //删除过滤条件
     $scope.removeSearchItem = function (key) {
-        if ("brand" == key || "category" == key) {
+        if ("brand" == key || "category" == key || "price" == key) {
             $scope.searchMap[key] = "";
         } else {
             //删除规格对象中的属性
