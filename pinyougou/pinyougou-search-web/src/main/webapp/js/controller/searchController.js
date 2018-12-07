@@ -1,7 +1,7 @@
 app.controller("searchController", function ($scope, searchService) {
 
     //定义提交到后台的对象
-    $scope.searchMap = {"keywords":"","brand":"","category":"","price":"","spec":{}, "pageNo":1, "pageSize":20};
+    $scope.searchMap = {"keywords":"","brand":"","category":"","price":"","spec":{}, "pageNo":1, "pageSize":20, "sortField":"","sort":""};
 
     //搜索
     $scope.search = function () {
@@ -117,6 +117,14 @@ app.controller("searchController", function ($scope, searchService) {
     //下一页
     $scope.nextPage = function () {
         $scope.queryByPageNo(parseInt($scope.searchMap.pageNo)+1);
+    };
+
+    //添加排序查询
+    $scope.sortSearch = function (sortField, sort) {
+        $scope.searchMap.sortField = sortField;
+        $scope.searchMap.sort = sort;
+
+        $scope.search();
     };
 
 });

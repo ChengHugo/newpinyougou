@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.pinyougou.pojo.TbItem;
 import com.pinyougou.search.service.ItemSearchService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.core.query.*;
 import org.springframework.data.solr.core.query.result.HighlightEntry;
@@ -131,6 +132,18 @@ public class ItemSearchServiceImpl implements ItemSearchService {
         query.setOffset((pageNo-1)*pageSize);
         //页大小
         query.setRows(pageSize);
+
+        //设置排序
+        if (!StringUtils.isEmpty(searchMap.get("sortField")) && !StringUtils.isEmpty(searchMap.get("sort"))) {
+            //域名
+            String sortField = searchMap.get("sortField").toString();
+            //顺序 DESC、ASC
+            String sortStr = searchMap.get("sort").toString();
+
+            //添加排序 参数1：排序顺序，参数2：在solr中的域名
+            Sort sort = new Sort("DESC".equals(sortStr) ? Sort.Direction.DESC : Sort.Direction.ASC, "item_" + sortField);
+            query.addSort(sort);
+        }
 
 
         //查询
