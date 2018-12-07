@@ -5,17 +5,16 @@ import com.pinyougou.pojo.TbItem;
 import com.pinyougou.search.service.ItemSearchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.solr.core.SolrTemplate;
-import org.springframework.data.solr.core.query.Criteria;
-import org.springframework.data.solr.core.query.HighlightOptions;
-import org.springframework.data.solr.core.query.SimpleHighlightQuery;
-import org.springframework.data.solr.core.query.SimpleQuery;
+import org.springframework.data.solr.core.query.*;
 import org.springframework.data.solr.core.query.result.HighlightEntry;
 import org.springframework.data.solr.core.query.result.HighlightPage;
 import org.springframework.data.solr.core.query.result.ScoredPage;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 public class ItemSearchServiceImpl implements ItemSearchService {
@@ -44,6 +43,49 @@ public class ItemSearchServiceImpl implements ItemSearchService {
         //设置高亮的结束标签
         highlightOptions.setSimplePostfix("</font>");
         query.setHighlightOptions(highlightOptions);
+
+        //按照商品分类进行条件过滤
+        if(!StringUtils.isEmpty(searchMap.get("category"))){
+            //创建过滤查询对象
+            SimpleFilterQuery categoryFilterQuery = new SimpleFilterQuery();
+            //创建条件对象：参数1：域名，is之后的是查询的值
+            Criteria categoryCriteria = new Criteria("item_category").is(searchMap.get("category"));
+            categoryFilterQuery.addCriteria(categoryCriteria);
+
+            //添加过滤条件
+            query.addFilterQuery(categoryFilterQuery);
+        }
+        //按照品牌进行条件过滤
+        if(!StringUtils.isEmpty(searchMap.get("brand"))){
+            //创建过滤查询对象
+            SimpleFilterQuery brandFilterQuery = new SimpleFilterQuery();
+            //创建条件对象：参数1：域名，is之后的是查询的值
+            Criteria brandCriteria = new Criteria("item_brand").is(searchMap.get("brand"));
+            brandFilterQuery.addCriteria(brandCriteria);
+
+            //添加过滤条件
+            query.addFilterQuery(brandFilterQuery);
+        }
+
+        //按照规格进行条件过滤
+        if(searchMap.get("spec") != null){
+
+            //获取每一个规格 及其 值
+            Map<String, String> specMap = (Map<String, String>) searchMap.get("spec");
+            Set<Map.Entry<String, String>> entries = specMap.entrySet();
+            for (Map.Entry<String, String> entry : entries) {
+                //创建过滤查询对象
+                SimpleFilterQuery filterQuery = new SimpleFilterQuery();
+                //创建条件对象：参数1：域名，is之后的是查询的值
+                Criteria specCriteria = new Criteria("item_spec_" + entry.getKey()).is(entry.getValue());
+                filterQuery.addCriteria(specCriteria);
+
+                //添加过滤条件
+                query.addFilterQuery(filterQuery);
+            }
+
+        }
+
 
         //查询
         //ScoredPage<TbItem> scoredPage = solrTemplate.queryForPage(query, TbItem.class);
