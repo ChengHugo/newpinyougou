@@ -1,7 +1,7 @@
 app.controller("searchController", function ($scope, searchService) {
 
     //定义提交到后台的对象
-    $scope.searchMap = {"keywords":"","brand":"","category":"","price":"","spec":{}};
+    $scope.searchMap = {"keywords":"","brand":"","category":"","price":"","spec":{}, "pageNo":1, "pageSize":20};
 
     //搜索
     $scope.search = function () {
@@ -9,6 +9,9 @@ app.controller("searchController", function ($scope, searchService) {
         searchService.search($scope.searchMap).success(function (reponse) {
             $scope.resultMap = reponse;
         });
+
+        //构建分页导航条
+        buildPageInfo();
 
     };
 
@@ -37,6 +40,49 @@ app.controller("searchController", function ($scope, searchService) {
 
         //查询
         $scope.search();
+
+    };
+
+    //构造分页导航条
+    buildPageInfo = function () {
+
+        //在页面中要显示的分页页号数组
+        $scope.pageNoList = [];
+
+        //起始页号
+        var startPageNo = 1;
+        //结束页号
+        var endPageNo = $scope.resultMap.totalPages;
+        //要显示的总页号数
+        var showPageNoTotal = 5;
+
+        //如果总页数大于要显示的总页号数
+        if($scope.resultMap.totalPages > showPageNoTotal){
+
+            //当前页的左右间隔页数
+            var interval = Math.floor(showPageNoTotal/2);
+
+            //起始页号
+            startPageNo = parseInt($scope.searchMap.pageNo) - interval;
+            //结束页号
+            endPageNo =  parseInt($scope.searchMap.pageNo) + interval;
+
+            //如果结束页号大于总页数
+            if(endPageNo > $scope.resultMap.totalPages){
+                startPageNo = $scope.resultMap.totalPages - showPageNoTotal + 1;
+                endPageNo = $scope.resultMap.totalPages;
+            } else if(startPageNo < 1){
+                //如果起始页号小于则为1
+                startPageNo = 1;
+                endPageNo = showPageNoTotal;
+            }
+
+        }
+
+
+        for (var i = startPageNo; i <= endPageNo; i++) {
+            $scope.pageNoList.push(i);
+        }
 
     };
 
