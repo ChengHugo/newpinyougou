@@ -72,7 +72,7 @@ public class GoodsServiceImpl extends BaseServiceImpl<TbGoods> implements GoodsS
         //1. 保存商品基本
         add(goods.getGoods());
 
-        int i = 1/0;
+        //int i = 1/0;
 
         //2. 保存商品描述信息
         goods.getGoodsDesc().setGoodsId(goods.getGoods().getId());
