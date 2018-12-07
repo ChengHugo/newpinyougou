@@ -8,10 +8,11 @@ app.controller("searchController", function ($scope, searchService) {
 
         searchService.search($scope.searchMap).success(function (reponse) {
             $scope.resultMap = reponse;
-        });
 
-        //构建分页导航条
-        buildPageInfo();
+            //构建分页导航条
+            buildPageInfo();
+
+        });
 
     };
 
@@ -49,12 +50,12 @@ app.controller("searchController", function ($scope, searchService) {
         //在页面中要显示的分页页号数组
         $scope.pageNoList = [];
 
+        //要显示的总页号数
+        var showPageNoTotal = 5;
         //起始页号
         var startPageNo = 1;
         //结束页号
         var endPageNo = $scope.resultMap.totalPages;
-        //要显示的总页号数
-        var showPageNoTotal = 5;
 
         //如果总页数大于要显示的总页号数
         if($scope.resultMap.totalPages > showPageNoTotal){
@@ -79,11 +80,43 @@ app.controller("searchController", function ($scope, searchService) {
 
         }
 
+        //前面三个点
+        $scope.frontDot = false;
+        if (startPageNo > 1) {
+            $scope.frontDot = true;
+        }
+        //后面三个点
+        $scope.backDot = false;
+        if (endPageNo < $scope.resultMap.totalPages) {
+            $scope.backDot = true;
+        }
+
 
         for (var i = startPageNo; i <= endPageNo; i++) {
             $scope.pageNoList.push(i);
         }
 
+    };
+
+    //判断是否当前页号
+    $scope.isCurrentPage = function (pageNo) {
+        return $scope.searchMap.pageNo == pageNo;
+    };
+
+    //根据页号查询
+    $scope.queryByPageNo = function (pageNo) {
+        if(0 < pageNo && (pageNo <= $scope.resultMap.totalPages)){
+            //设置页号
+            $scope.searchMap.pageNo = pageNo;
+
+            $scope.search();
+        }
+
+    };
+
+    //下一页
+    $scope.nextPage = function () {
+        $scope.queryByPageNo(parseInt($scope.searchMap.pageNo)+1);
     };
 
 });
