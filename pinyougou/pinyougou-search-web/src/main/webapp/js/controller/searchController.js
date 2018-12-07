@@ -1,4 +1,4 @@
-app.controller("searchController", function ($scope, searchService) {
+app.controller("searchController", function ($scope,$location, searchService) {
 
     //定义提交到后台的对象
     $scope.searchMap = {"keywords":"","brand":"","category":"","price":"","spec":{}, "pageNo":1, "pageSize":20, "sortField":"","sort":""};
@@ -124,6 +124,14 @@ app.controller("searchController", function ($scope, searchService) {
         $scope.searchMap.sortField = sortField;
         $scope.searchMap.sort = sort;
 
+        $scope.search();
+    };
+
+    //加载搜索关键字并搜索
+    $scope.loadKeywords = function () {
+
+        //获取到浏览器地址栏中的请求参数；地址 如：http://search.pinyougou.com/search.html#?keywords=小米
+        $scope.searchMap.keywords = $location.search()["keywords"];
         $scope.search();
     };
 
