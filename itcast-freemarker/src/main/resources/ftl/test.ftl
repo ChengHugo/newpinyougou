@@ -26,10 +26,22 @@ include引入其他模版<br>
 <br>
 <hr>
 <br>
+if条件控制语句<br>
+<#assign bool=true>
+<#if bool>
+    bool的值为true
+<#else>
+    bool的值为false
+</#if>
 
 <br>
 <hr>
 <br>
+list循环控制语句<br>
+<#list goodsList as goods>
+    ${goods_index}--${goods.name}--${goods.price}<br>
+</#list>
+
 
 <br>
 <hr>
