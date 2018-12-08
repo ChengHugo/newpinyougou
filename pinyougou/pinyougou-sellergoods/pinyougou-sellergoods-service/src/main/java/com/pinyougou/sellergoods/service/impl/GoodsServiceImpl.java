@@ -84,23 +84,7 @@ public class GoodsServiceImpl extends BaseServiceImpl<TbGoods> implements GoodsS
 
     @Override
     public Goods findGoodsById(Long id) {
-        Goods goods = new Goods();
-        /**
-         * SELECT * FROM tb_goods WHERE id=? ;
-         * SELECT * FROM tb_goods_desc WHERE goods_id=? ;
-         * SELECT * FROM tb_item WHERE goods_id=?;
-         */
-        //1、基本信息
-        goods.setGoods(findOne(id));
-        //2、描述信息
-        goods.setGoodsDesc(goodsDescMapper.selectByPrimaryKey(id));
-        //3、根据spu id 查询sku列表
-        TbItem item = new TbItem();
-        item.setGoodsId(id);
-        List<TbItem> itemList = itemMapper.select(item);
-        goods.setItemList(itemList);
-
-        return goods;
+        return findGoodsByIdAndStatus(id, null);
     }
 
     @Override
@@ -172,6 +156,37 @@ public class GoodsServiceImpl extends BaseServiceImpl<TbGoods> implements GoodsS
                 .andEqualTo("status", status);
 
         return itemMapper.selectByExample(example);
+    }
+
+    @Override
+    public Goods findGoodsByIdAndStatus(Long goodsId, String itemStatus) {
+        Goods goods = new Goods();
+        /**
+         * SELECT * FROM tb_goods WHERE id=? ;
+         * SELECT * FROM tb_goods_desc WHERE goods_id=? ;
+         * SELECT * FROM tb_item WHERE goods_id=?;
+         */
+        //1、基本信息
+        goods.setGoods(findOne(goodsId));
+        //2、描述信息
+        goods.setGoodsDesc(goodsDescMapper.selectByPrimaryKey(goodsId));
+        //3、根据spu id 查询sku列表
+        Example example = new Example(TbItem.class);
+        Example.Criteria criteria = example.createCriteria();
+
+        criteria.andEqualTo("goodsId", goodsId);
+
+        if (itemStatus != null) {
+            criteria.andEqualTo("status", itemStatus);
+        }
+
+        //根据是否默认降序排序sku列表
+        example.orderBy("isDefault").desc();
+
+        List<TbItem> itemList = itemMapper.selectByExample(example);
+        goods.setItemList(itemList);
+
+        return goods;
     }
 
     /**
