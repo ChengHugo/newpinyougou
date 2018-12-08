@@ -66,6 +66,24 @@ number数值默认显示 = ${number}；可以使用?c方式进行格式化为字
 <br>
 <hr>
 <br>
+空值的处理<br>
+<br>
+值为空可以使用!表示什么都不显示${emp!}；如果值为空以后显示具体的值则可以!"要显示的值"--》${emp!"emp的值为空"}
+
+<br>
+<br>
+???前面两个??表示一个变量是否存在；如果存在则返回true，否则false，后面一个?表示函数的调用。<br>
+
+<#assign bool2=false/>
+${bool2???string}
+
+<br>
+
+<#if str3??>
+    str3存在
+<#else>
+    str3不存在
+</#if>
 
 <br>
 <hr>
