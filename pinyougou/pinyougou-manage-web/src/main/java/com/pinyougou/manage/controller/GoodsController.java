@@ -4,7 +4,6 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSON;
 import com.pinyougou.pojo.TbGoods;
 import com.pinyougou.pojo.TbItem;
-import com.pinyougou.search.service.ItemSearchService;
 import com.pinyougou.sellergoods.service.GoodsService;
 import com.pinyougou.vo.PageResult;
 import com.pinyougou.vo.Result;
@@ -14,10 +13,7 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 import org.springframework.web.bind.annotation.*;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.Session;
-import javax.jms.TextMessage;
+import javax.jms.*;
 import java.util.Arrays;
 import java.util.List;
 
@@ -28,14 +24,14 @@ public class GoodsController {
     @Reference
     private GoodsService goodsService;
 
-    @Reference
-    private ItemSearchService itemSearchService;
-
     @Autowired
     private JmsTemplate jmsTemplate;
 
     @Autowired
     private ActiveMQQueue solrItemQueue;
+
+    @Autowired
+    private ActiveMQQueue solrItemDeleteQueue;
 
     @RequestMapping("/findAll")
     public List<TbGoods> findAll() {
@@ -86,7 +82,17 @@ public class GoodsController {
             goodsService.deleteGoodsByIds(ids);
 
             //删除搜索系统中的商品
-            itemSearchService.deleteItemListByGoodsIds(Arrays.asList(ids));
+            //itemSearchService.deleteItemListByGoodsIds(Arrays.asList(ids));
+
+            //发送MQ消息
+            jmsTemplate.send(solrItemDeleteQueue, new MessageCreator() {
+                @Override
+                public Message createMessage(Session session) throws JMSException {
+                    ObjectMessage objectMessage = session.createObjectMessage();
+                    objectMessage.setObject(ids);
+                    return objectMessage;
+                }
+            });
 
             return Result.ok("删除成功");
         } catch (Exception e) {
