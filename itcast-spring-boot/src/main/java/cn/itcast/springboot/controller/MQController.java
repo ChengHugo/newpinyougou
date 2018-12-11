@@ -31,4 +31,22 @@ public class MQController {
 
         return "发送MQ 队列spring.boot.mq.queue消息成功。";
     }
+
+    /**
+     * 发送短信MQ消息
+     * @return 操作结果
+     */
+    @GetMapping("/sendSmsMsg")
+    public String sendSmsMsg(){
+        Map<String, Object> map = new HashMap<>();
+        map.put("mobile", "15919606556");
+        map.put("signName", "黑马");
+        map.put("templateCode", "SMS_125018593");
+        map.put("templateParam", "{\"code\":\"654321\"}");
+
+        //发送消息到mq
+        jmsMessagingTemplate.convertAndSend("itcast_sms_queue", map);
+
+        return "发送MQ 队列itcast_sms_queue消息成功。";
+    }
 }
