@@ -5,8 +5,10 @@ import com.pinyougou.pojo.TbUser;
 import com.pinyougou.user.service.UserService;
 import com.pinyougou.vo.PageResult;
 import com.pinyougou.vo.Result;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 @RequestMapping("/user")
@@ -27,15 +29,25 @@ public class UserController {
         return userService.findPage(page, rows);
     }
 
+    /**
+     * 保存用户信息
+     * @param user 用户
+     * @param smsCode 验证码
+     * @return 操作结果
+     */
     @PostMapping("/add")
-    public Result add(@RequestBody TbUser user) {
+    public Result add(@RequestBody TbUser user, String smsCode) {
         try {
+            user.setPassword(DigestUtils.md5Hex(user.getPassword()));
+            user.setCreated(new Date());
+            user.setUpdated(user.getCreated());
+
             userService.add(user);
-            return Result.ok("增加成功");
+            return Result.ok("注册成功");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return Result.fail("增加失败");
+        return Result.fail("注册失败");
     }
 
     @GetMapping("/findOne")
