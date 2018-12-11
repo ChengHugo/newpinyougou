@@ -86,4 +86,18 @@ public class UserServiceImpl extends BaseServiceImpl<TbUser> implements UserServ
         });
 
     }
+
+    @Override
+    public boolean checkSmsCode(String phone, String smsCode) {
+        //获取正确的验证码
+        String code = (String) redisTemplate.boundValueOps(phone).get();
+        if (smsCode.equals(code)) {
+            //删除redis中验证码
+            redisTemplate.delete(phone);
+
+            return true;
+        }
+
+        return false;
+    }
 }

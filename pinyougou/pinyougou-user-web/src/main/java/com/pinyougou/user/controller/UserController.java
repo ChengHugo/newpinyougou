@@ -62,17 +62,26 @@ public class UserController {
      */
     @PostMapping("/add")
     public Result add(@RequestBody TbUser user, String smsCode) {
+        Result result = Result.fail("注册失败");
         try {
-            user.setPassword(DigestUtils.md5Hex(user.getPassword()));
-            user.setCreated(new Date());
-            user.setUpdated(user.getCreated());
+            if (PhoneFormatCheckUtils.isPhoneLegal(user.getPhone())) {
+                if(userService.checkSmsCode(user.getPhone(), smsCode)) {
+                    user.setPassword(DigestUtils.md5Hex(user.getPassword()));
+                    user.setCreated(new Date());
+                    user.setUpdated(user.getCreated());
 
-            userService.add(user);
-            return Result.ok("注册成功");
+                    userService.add(user);
+                    result = Result.ok("注册成功");
+                } else {
+                    result = Result.fail("验证码不正确，注册失败！");
+                }
+            } else {
+                result = Result.fail("发送验证码失败，手机号非法!");
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return Result.fail("注册失败");
+        return result;
     }
 
     @GetMapping("/findOne")
