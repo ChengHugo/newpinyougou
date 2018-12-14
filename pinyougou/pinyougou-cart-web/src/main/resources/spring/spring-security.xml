@@ -18,6 +18,8 @@ http://www.springframework.org/schema/security/spring-security.xsd">
 
     <!-- entry-point-ref 入口点引用  -->
     <http use-expressions="false" entry-point-ref="casProcessingFilterEntryPoint">
+        <!--符合的路径可以进行匿名访问，如果是未登录访问的话；那么获取到的用户名称为anonymousUser-->
+        <intercept-url pattern="/cart/*.do" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
         <intercept-url pattern="/**" access="ROLE_USER"/>
         <csrf disabled="true"/>
         <!-- custom-filter 为过滤器， position  表示将过滤器放在指定的位置上， before
