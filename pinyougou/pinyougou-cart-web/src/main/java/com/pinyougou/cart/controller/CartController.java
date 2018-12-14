@@ -1,8 +1,12 @@
 package com.pinyougou.cart.controller;
 
+import com.alibaba.dubbo.config.annotation.Reference;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.pinyougou.cart.service.CartService;
 import com.pinyougou.common.util.CookieUtils;
 import com.pinyougou.vo.Cart;
+import com.pinyougou.vo.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
@@ -23,12 +27,52 @@ public class CartController {
 
     //品优购系统的购物车在cookie中的名称
     private static final String COOKIE_CART_LIST = "PYG_CART_LIST";
+    //品优购系统的购物车在cookie中的生存时间为1天
+    private static final int COOKIE_CART_MAX_AGE = 60*60*24;
 
     @Autowired
     private HttpServletRequest request;
 
     @Autowired
     private HttpServletResponse response;
+
+    @Reference
+    private CartService cartService;
+
+    /**
+     * 在登录、未登录情况下实现加入购物车
+     * @param itemId 商品sku id
+     * @param num 购买数量
+     * @return 操作结果
+     */
+    @GetMapping("/addItemToCartList")
+    public Result addItemToCartList(Long itemId, Integer num){
+        Result result = Result.fail("加入购物车失败");
+
+        try {
+            //因为配置了可以匿名访问所以如果是匿名访问的时候，返回的用户名为anonymousUser
+            //如果未登录则用户名为：anonymousUser
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            if ("anonymousUser".equals(username)) {
+                //未登录；更新cookie中的数据
+                //1. 获取cookie中的购物车列表；
+                List<Cart> cookieCartList = findCartList();
+                //2. 将新的商品和购买数量更新到购物车列表；
+                List<Cart> newCookieCartList = cartService.addItemToCartList(cookieCartList, itemId, num);
+                //3. 将购物车列表写回到cookie；最大过期时间1天
+                CookieUtils.setCookie(request, response, COOKIE_CART_LIST,
+                        JSON.toJSONString(newCookieCartList), COOKIE_CART_MAX_AGE, true);
+            } else {
+                //已登录，更新redis中的数据
+
+            }
+            result = Result.ok("加入购物车成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
 
 
     /**

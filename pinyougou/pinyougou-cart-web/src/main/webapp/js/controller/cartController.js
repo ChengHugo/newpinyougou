@@ -17,4 +17,18 @@ app.controller("cartController", function ($scope, cartService) {
         });
 
     };
+
+    //加入购物车
+    $scope.addItemToCartList = function (itemId, num) {
+        cartService.addItemToCartList(itemId, num).success(function (response) {
+            if(response.success){
+                //加入购物车成功则刷新列表
+                $scope.findCartList();
+            } else {
+                alert(response.message);
+            }
+
+        });
+
+    };
 });
