@@ -50,21 +50,24 @@ public class CartController {
         Result result = Result.fail("加入购物车失败");
 
         try {
+            //1. 获取cookie中的购物车列表；
+            List<Cart> cartList = findCartList();
+            //2. 将新的商品和购买数量更新到购物车列表；
+            List<Cart> newCartList = cartService.addItemToCartList(cartList, itemId, num);
+
             //因为配置了可以匿名访问所以如果是匿名访问的时候，返回的用户名为anonymousUser
             //如果未登录则用户名为：anonymousUser
             String username = SecurityContextHolder.getContext().getAuthentication().getName();
             if ("anonymousUser".equals(username)) {
                 //未登录；更新cookie中的数据
-                //1. 获取cookie中的购物车列表；
-                List<Cart> cookieCartList = findCartList();
-                //2. 将新的商品和购买数量更新到购物车列表；
-                List<Cart> newCookieCartList = cartService.addItemToCartList(cookieCartList, itemId, num);
+
                 //3. 将购物车列表写回到cookie；最大过期时间1天
                 CookieUtils.setCookie(request, response, COOKIE_CART_LIST,
-                        JSON.toJSONString(newCookieCartList), COOKIE_CART_MAX_AGE, true);
+                        JSON.toJSONString(newCartList), COOKIE_CART_MAX_AGE, true);
             } else {
                 //已登录，更新redis中的数据
-
+                //3、将购物车存入到redis中
+                cartService.saveCartListByUsername(newCartList, username);
             }
             result = Result.ok("加入购物车成功");
         } catch (Exception e) {
@@ -95,6 +98,9 @@ public class CartController {
                 return cookieCartList;
             } else {
                 //已登录，从redis中获取购物车数据
+                List<Cart> redisCartList = cartService.findCartListByUsername(username);
+
+                return redisCartList;
             }
         } catch (Exception e) {
             e.printStackTrace();
