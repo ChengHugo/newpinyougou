@@ -5,6 +5,7 @@ import com.pinyougou.pojo.TbAddress;
 import com.pinyougou.user.service.AddressService;
 import com.pinyougou.vo.PageResult;
 import com.pinyougou.vo.Result;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,6 +16,21 @@ public class AddressController {
 
     @Reference
     private AddressService addressService;
+
+    /**
+     * 获取当前登录用户的收件人地址列表
+     * @return 地址列表
+     */
+    @GetMapping("/findAddressList")
+    public List<TbAddress> findAddressList(){
+
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        TbAddress param = new TbAddress();
+        param.setUserId(userId);
+
+        return addressService.findByWhere(param);
+    }
+
 
     @RequestMapping("/findAll")
     public List<TbAddress> findAll() {
