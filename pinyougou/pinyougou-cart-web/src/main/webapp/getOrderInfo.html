@@ -75,7 +75,7 @@
 								<div class="con name {{isSelectedAddress(address)?'selected':''}}"><a ng-click="selectAddress(address)" href="javascript:;" >{{address.contact}}
                                     <span title="点击取消选择">&nbsp;</span></a></div>
 								<div class="con address">{{address.contact}} {{address.address}} <span>{{address.mobile}}</span>
-									<span class="base" ng-if="address.isDefault=='1'">默认地址</span>
+									<span class="base" ng-show="address.isDefault=='1'">默认地址</span>
 									<span class="edittext">
                                         <a data-toggle="modal" data-target=".edit" data-keyboard="false" >编辑</a>&nbsp;&nbsp;
                                         <a href="javascript:;">删除</a></span>
@@ -152,12 +152,12 @@
 				<!--支付和送货-->
 				<div class="payshipInfo">
 					<div class="step-tit">
-						<h5>支付方式</h5>
+						<h5>支付方式</h5>{{order.paymentType}}
 					</div>
 					<div class="step-cont">
 						<ul class="payType">
-							<li class="selected">微信付款<span title="点击取消选择"></span></li>
-							<li>货到付款<span title="点击取消选择"></span></li>
+							<li class="{{order.paymentType=='1'?'selected':''}}" ng-click="selectPaymentType('1')">微信付款<span title="点击取消选择"></span></li>
+							<li class="{{order.paymentType=='2'?'selected':''}}" ng-click="selectPaymentType('2')">货到付款<span title="点击取消选择"></span></li>
 						</ul>
 					</div>
 					<div class="hr"></div>
