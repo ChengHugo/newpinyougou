@@ -47,6 +47,13 @@ public class CartController {
      */
     @GetMapping("/addItemToCartList")
     public Result addItemToCartList(Long itemId, Integer num){
+
+        //设置允许哪些域名的服务器可以获得资源，允许跨域请求响应
+        response.setHeader("Access-Control-Allow-Origin", "http://item.pinyougou.com");
+        //是否允许接收或设置cookie
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+
+
         Result result = Result.fail("加入购物车失败");
 
         try {

@@ -63,6 +63,7 @@ app.controller("itemController", function ($scope, $http) {
     };
 
     $scope.addToCart = function () {
+        //在跨域请求的时候如果需要携带cookie数据；withCredentials 为true的话则可以携带
         $http.get("http://cart.pinyougou.com/cart/addItemToCartList.do?itemId="
             + $scope.sku.id + "&num=" + $scope.num,{"withCredentials":true})
             .success(function (response) {
