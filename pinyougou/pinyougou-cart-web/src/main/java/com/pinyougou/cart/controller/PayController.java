@@ -5,6 +5,7 @@ import com.pinyougou.cart.service.CartService;
 import com.pinyougou.order.service.OrderService;
 import com.pinyougou.pay.service.WeixinPayService;
 import com.pinyougou.pojo.TbPayLog;
+import com.pinyougou.vo.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +23,38 @@ public class PayController {
 
     @Reference
     private WeixinPayService weixinPayService;
+
+    /**
+     * 根据交易号到支付系统查询订单的支付状态
+     * @param outTradeNo 交易号
+     * @return 操作结果
+     */
+    @GetMapping("/queryPayStatus")
+    public Result queryPayStatus(String outTradeNo){
+        Result result = Result.fail("支付失败");
+        try {
+            while(true) {
+                //1. 定时每隔3秒到微信支付系统查询支付状态；
+                Map<String, String> resultMap = weixinPayService.queryPayStatus(outTradeNo);
+                if(resultMap == null){
+                    break;
+                }
+                if ("SUCCESS".equals(resultMap.get("trade_state"))) {
+                    //2. 如果支付成功则更新订单信息；
+                    orderService.updateOrderStatus(outTradeNo, resultMap.get("transaction_id"));
+                    result = Result.ok("支付成功");
+                    break;
+                }
+
+                //每隔3秒
+                Thread.sleep(3000);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //3. 返回结果
+        return result;
+    }
 
 
     /**
