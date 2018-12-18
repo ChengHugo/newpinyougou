@@ -42,7 +42,7 @@ app.controller("payController", function ($scope, $location, cartService, paySer
         payService.queryPayStatus(outTradeNo).success(function (response) {
             if(response.success){
                 //支付成功跳转到支付成功的页面
-                location.href= "paysuccess.html";
+                location.href= "paysuccess.html#?money=" + $scope.totalFee;
             } else {
                 if ("支付超时" == response.message) {
                     //alert(response.message);
@@ -55,6 +55,12 @@ app.controller("payController", function ($scope, $location, cartService, paySer
             }
 
         });
+
+    };
+
+    $scope.loadMoney = function () {
+
+        $scope.money = $location.search()["money"];
 
     };
 
