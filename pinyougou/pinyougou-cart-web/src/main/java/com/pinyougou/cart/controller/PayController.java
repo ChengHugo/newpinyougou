@@ -33,6 +33,8 @@ public class PayController {
     public Result queryPayStatus(String outTradeNo){
         Result result = Result.fail("支付失败");
         try {
+            //3分钟若未支付成功则认为超时；返回支付超时
+            int count = 0;
             while(true) {
                 //1. 定时每隔3秒到微信支付系统查询支付状态；
                 Map<String, String> resultMap = weixinPayService.queryPayStatus(outTradeNo);
@@ -43,6 +45,12 @@ public class PayController {
                     //2. 如果支付成功则更新订单信息；
                     orderService.updateOrderStatus(outTradeNo, resultMap.get("transaction_id"));
                     result = Result.ok("支付成功");
+                    break;
+                }
+
+                count++;
+                if (count > 1) {
+                    result = Result.fail("支付超时");
                     break;
                 }
 
