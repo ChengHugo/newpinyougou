@@ -1,4 +1,4 @@
-app.controller("payController", function ($scope, $location, cartService) {
+app.controller("payController", function ($scope, $location, cartService, payService) {
 
     //获取用户信息
     $scope.getUsername = function () {
@@ -23,7 +23,7 @@ app.controller("payController", function ($scope, $location, cartService) {
 
                 var qr = new QRious({
                     element:document.getElementById("qrious"),
-                    level:"Q",
+                    level:"M",
                     size:250,
                     value:response.code_url
                 });
