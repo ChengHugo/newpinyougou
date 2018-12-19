@@ -35,4 +35,9 @@ public class SeckillOrderServiceImpl extends BaseServiceImpl<TbSeckillOrder> imp
 
         return new PageResult(pageInfo.getTotal(), pageInfo.getList());
     }
+
+    @Override
+    public String submitOrder(String username, Long seckillId) {
+        return null;
+    }
 }
