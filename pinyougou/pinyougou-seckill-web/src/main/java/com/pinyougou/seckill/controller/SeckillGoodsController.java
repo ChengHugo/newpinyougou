@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 public class SeckillGoodsController {
 
-    @Reference
+    @Reference(timeout = 10000)
     private SeckillGoodsService seckillGoodsService;
 
     /**

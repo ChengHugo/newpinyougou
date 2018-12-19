@@ -9,6 +9,7 @@ import com.pinyougou.seckill.service.SeckillGoodsService;
 import com.pinyougou.service.impl.BaseServiceImpl;
 import com.pinyougou.vo.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.StringUtils;
 import tk.mybatis.mapper.entity.Example;
 
@@ -18,8 +19,13 @@ import java.util.List;
 @Service(interfaceClass = SeckillGoodsService.class)
 public class SeckillGoodsServiceImpl extends BaseServiceImpl<TbSeckillGoods> implements SeckillGoodsService {
 
+    //秒杀商品列表在redis的key的名称
+    private static final String SECKILL_GOODS = "SECKILL_GOODS";
     @Autowired
     private SeckillGoodsMapper seckillGoodsMapper;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Override
     public PageResult search(Integer page, Integer rows, TbSeckillGoods seckillGoods) {
@@ -41,6 +47,16 @@ public class SeckillGoodsServiceImpl extends BaseServiceImpl<TbSeckillGoods> imp
     public List<TbSeckillGoods> findList() {
         List<TbSeckillGoods> seckillGoodsList = null;
 
+        try {
+            //先从redis中查询秒杀商品
+            seckillGoodsList = redisTemplate.boundHashOps(SECKILL_GOODS).values();
+            if (seckillGoodsList != null && seckillGoodsList.size() > 0) {
+                return seckillGoodsList;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         Example example = new Example(TbSeckillGoods.class);
         Example.Criteria criteria = example.createCriteria();
         //已审核
@@ -57,6 +73,17 @@ public class SeckillGoodsServiceImpl extends BaseServiceImpl<TbSeckillGoods> imp
 
         //查询
         seckillGoodsList = seckillGoodsMapper.selectByExample(example);
+
+        //将秒杀商品存入到redis中
+        try {
+            if (seckillGoodsList != null && seckillGoodsList.size() > 0) {
+                for (TbSeckillGoods seckillGoods : seckillGoodsList) {
+                    redisTemplate.boundHashOps(SECKILL_GOODS).put(seckillGoods.getId(), seckillGoods);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return seckillGoodsList;
     }
