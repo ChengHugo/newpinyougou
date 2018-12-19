@@ -2,6 +2,7 @@ package com.pinyougou.seckill.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.pinyougou.pojo.TbSeckillGoods;
+import com.pinyougou.pojo.TbSeckillOrder;
 import com.pinyougou.seckill.service.SeckillGoodsService;
 import com.pinyougou.vo.PageResult;
 import com.pinyougou.vo.Result;
@@ -46,10 +47,14 @@ public class SeckillGoodsController {
         }
         return Result.fail("增加失败");
     }
-
+    /**
+     * 根据id获取秒杀商品（redis）
+     * @param id 秒杀商品id
+     * @return 秒杀商品
+     */
     @GetMapping("/findOne")
     public TbSeckillGoods findOne(Long id) {
-        return seckillGoodsService.findOne(id);
+        return seckillGoodsService.findSeckillGoodsInRedisById(id);
     }
 
     @PostMapping("/update")

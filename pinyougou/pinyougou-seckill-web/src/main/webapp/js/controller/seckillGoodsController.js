@@ -13,6 +13,9 @@ app.controller("seckillGoodsController", function ($scope, $location, $interval,
 
             //倒计时总秒数
             var allSeconds = Math.floor((new Date(response.endTime).getTime() - new Date().getTime()) / 1000);
+            //按照一定的频率执行任务
+            //参数1：要执行的任务；
+            //参数2：执行的间隔，单位毫秒
             var task = $interval(function () {
                 if (allSeconds > 0) {
                     allSeconds = allSeconds - 1;
