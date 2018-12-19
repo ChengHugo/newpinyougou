@@ -25,15 +25,19 @@ public class SeckillOrderController {
     @GetMapping("/submitOrder")
     public Result submitOrder(Long seckillId){
         Result result = Result.fail("秒杀失败!");
-        //获取当前登录用户名
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (!"anonymousUser".equals(username)) {
-            String orderId = seckillOrderService.submitOrder(username, seckillId);
-            if (orderId != null) {
-                result = Result.ok(orderId);
+        try {
+            //获取当前登录用户名
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            if (!"anonymousUser".equals(username)) {
+                String orderId = seckillOrderService.submitOrder(username, seckillId);
+                if (orderId != null) {
+                    result = Result.ok(orderId);
+                }
+            } else {
+                result = Result.fail("请先登录之后再进行秒杀商品！");
             }
-        } else {
-            result = Result.fail("请先登录之后再进行秒杀商品！");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return result;
     }
